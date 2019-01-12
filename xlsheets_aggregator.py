@@ -12,26 +12,29 @@ def aggregate_xlsheet(dpath):
     
     try:
     
-        # define path
-        fpath = Path(dpath)
+        # define the path where the excel files to be aggregated are kept
+        source_filepath = Path("/Users/xxxx/Downloads/xltest")
 
-        # change new path to the current working directory
-        os.chdir(fpath)
+        # change the path to become the current working directory
+        os.chdir(source_filepath)
 
         # create a new folder in the current working directory
         Path('merged').mkdir()
 
-        # define new path
-        newpath = fpath / 'merged'
-
-        # iterate through each file in the folder
-        for file in os.listdir(fpath):
+        # insert a new workbook in the folder
+        nwbk = pyxl.Workbook()
+        
+        # name the new workbook as "merged.xlsx" and define its path 
+        merged_wbk = source_filepath / 'merged' / "merged.xlsx"
+    
+        # iterate through each file in the source folder
+        for file in tqdm(os.listdir(source_filepath)):
 
             # select only excel file 
             if file.endswith(".xlsx"):
 
                 # load the excel file and set it active
-                wbk = pyxl.load_workbook(fpath / file)
+                wbk = pyxl.load_workbook(source_filepath / file)
                 wbk.active
 
                 # iterate through each sheet in the workbook
@@ -41,7 +44,7 @@ def aggregate_xlsheet(dpath):
                     nwbk.active
                     nsh = nwbk.create_sheet(sh.title)
 
-                    # iterate through the rows and cells in the selected sheet and write values into the new sheet
+                    # iterate through the rows and cells in the selected sheet and write data into the new sheet
                     for row in sh:
                         for cell in row:
                             nsh[cell.coordinate].value = cell.value
@@ -53,7 +56,7 @@ def aggregate_xlsheet(dpath):
         bk = pyxl.load_workbook(merged_wbk)
 
         # iterate through the sheets and remove any sheet without data
-        for sh in bk.worksheets:
+        for sh in tqdm(bk.worksheets):
             if sh.max_row == 1 and sh.max_column == 1:
                 bk.remove(sh)
 
@@ -66,4 +69,4 @@ def aggregate_xlsheet(dpath):
         print(err)
 
 if __name__=='__main__':
-    aggregate_xlsheet(dpath)   
+    aggregate_xlsheet("/Users/xxxx/Downloads/xltest")   
